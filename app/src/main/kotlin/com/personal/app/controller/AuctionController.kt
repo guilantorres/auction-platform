@@ -1,6 +1,7 @@
 package com.personal.app.controller
 
 import com.personal.app.controller.dto.CreateAuctionRequest
+import com.personal.app.controller.dto.GetAuctionResponse
 import com.personal.application.CreateAuctionService
 import com.personal.application.GetAuctionService
 import com.personal.auction.AuctionId
@@ -59,7 +60,20 @@ class AuctionController(
     }
 
     @GetMapping("/{id}")
-    fun getAuction(@PathVariable id: UUID) {
+    fun getAuction(@PathVariable id: UUID): GetAuctionResponse {
         val auction = getAuctionService.execute(AuctionId(id))
+        return GetAuctionResponse(
+            auction.id.value,
+            auction.sellerId.value,
+            auction.startingAmount.amountInCents,
+            auction.startingAmount.currencyCode.name,
+            auction.buyItNowPrice?.amountInCents,
+            auction.buyItNowPrice?.currencyCode?.name,
+            auction.getHighestBidAmount()?.amountInCents,
+            auction.getHighestBidAmount()?.currencyCode?.name,
+            auction.getStatus().name,
+            auction.itemTitle,
+            auction.itemDescription
+        )
     }
 }
