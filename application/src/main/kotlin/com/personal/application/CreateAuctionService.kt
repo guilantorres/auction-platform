@@ -1,6 +1,7 @@
 package com.personal.application
 
 import com.personal.auction.Auction
+import com.personal.auction.AuctionId
 import com.personal.auction.AuctionRepository
 import com.personal.auction.Money
 import com.personal.auction.UserId
@@ -19,7 +20,7 @@ class CreateAuctionService(
         buyItNowPrice: Money?,
         itemTitle: String,
         itemDescription: String?
-    ) {
+    ): AuctionId {
         val newAuction = Auction(
             sellerId = sellerId,
             startingAmount = startingMoney,
@@ -29,5 +30,6 @@ class CreateAuctionService(
         )
         auctionRepository.save(newAuction)
         logger.info("Auction created ${newAuction.id}")
+        return newAuction.id
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 @Repository
 class AuctionRepositoryImpl(
     private val auctionRepositoryJpa: AuctionRepositoryJpa
-): AuctionRepository {
+) : AuctionRepository {
     override fun save(auction: Auction) {
         auctionRepositoryJpa.save(auctionToEntity(auction))
     }
@@ -44,7 +44,8 @@ class AuctionRepositoryImpl(
         )
 
         val buyItNowPrice = if (auctionEntity.buyItNowPriceInCents != null &&
-            auctionEntity.buyItNowPriceCurrencyCode != null) {
+            auctionEntity.buyItNowPriceCurrencyCode != null
+        ) {
             Money(
                 auctionEntity.buyItNowPriceInCents,
                 auctionEntity.buyItNowPriceCurrencyCode
