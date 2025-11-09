@@ -6,6 +6,7 @@ import com.personal.app.controller.dto.PlaceBidRequest
 import com.personal.application.CreateAuctionService
 import com.personal.application.GetAuctionService
 import com.personal.application.PlaceBidService
+import com.personal.auction.Auction
 import com.personal.auction.AuctionId
 import com.personal.auction.CurrencyCode
 import com.personal.auction.Money
@@ -63,6 +64,28 @@ class AuctionController(
     @GetMapping("/{id}")
     fun getAuction(@PathVariable id: UUID): GetAuctionResponse {
         val auction = getAuctionService.execute(AuctionId(id))
+        return mapGetAuctionResponse(auction)
+    }
+
+    @PostMapping("/{id}/bids")
+    fun placeBid(
+        @PathVariable("id") auctionId: UUID,
+        @RequestBody placeBidRequest: PlaceBidRequest
+    ): ResponseEntity<GetAuctionResponse> {
+        val bidCurrencyCode = placeBidRequest.bidCurrencyCode.uppercase().trim()
+        val bidMoney = Money(
+            placeBidRequest.bidAmountInCents,
+            CurrencyCode.valueOf(bidCurrencyCode)
+        )
+        val auction = placeBidService.execute(
+            AuctionId(auctionId),
+            UserId(placeBidRequest.bidderId),
+            bidMoney
+        )
+        return ResponseEntity.ok(mapGetAuctionResponse(auction))
+    }
+
+    private fun mapGetAuctionResponse(auction: Auction): GetAuctionResponse {
         return GetAuctionResponse(
             auction.id.value,
             auction.sellerId.value,
@@ -76,23 +99,5 @@ class AuctionController(
             auction.itemTitle,
             auction.itemDescription
         )
-    }
-
-    @PostMapping("/{id}/bids")
-    fun placeBid(
-        @PathVariable("id") auctionId: UUID,
-        @RequestBody placeBidRequest: PlaceBidRequest
-    ): ResponseEntity<Any> {
-        val bidCurrencyCode = placeBidRequest.bidCurrencyCode.uppercase().trim()
-        val bidMoney = Money(
-            placeBidRequest.bidAmountInCents,
-            CurrencyCode.valueOf(bidCurrencyCode)
-        )
-        placeBidService.execute(
-            AuctionId(auctionId),
-            UserId(placeBidRequest.bidderId),
-            bidMoney
-        )
-        return ResponseEntity.ok().build()
     }
 }
