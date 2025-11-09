@@ -1,6 +1,7 @@
 package com.personal.application
 
 import com.personal.application.exceptions.AuctionNotFoundException
+import com.personal.auction.Auction
 import com.personal.auction.AuctionId
 import com.personal.auction.AuctionRepository
 import com.personal.auction.Money
@@ -11,11 +12,12 @@ import org.springframework.stereotype.Service
 class PlaceBidService(
     private val auctionRepository: AuctionRepository
 ) {
-    fun execute(auctionId: AuctionId, bidderId: UserId, money: Money) {
+    fun execute(auctionId: AuctionId, bidderId: UserId, money: Money): Auction {
         val persistedAuction =
             auctionRepository.findById(auctionId) ?: throw AuctionNotFoundException(auctionId)
 
         persistedAuction.placeBid(bidderId, money)
         auctionRepository.save(persistedAuction)
+        return persistedAuction
     }
 }
