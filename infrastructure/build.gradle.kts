@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
-    id("org.springframework.boot")
     id("io.spring.dependency-management")
 }
 
@@ -19,6 +18,12 @@ dependencies {
     runtimeOnly("com.h2database:h2")
 
     testImplementation(kotlin("test"))
+}
+
+dependencyManagement {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
 }
 
 tasks.test {

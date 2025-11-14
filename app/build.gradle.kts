@@ -17,8 +17,11 @@ dependencies {
     implementation(project(":application"))
     implementation(project(":infrastructure"))
 
+    implementation(kotlin("reflect"))
+
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.data:spring-data-jpa")
 }
 
 dependencyManagement {
@@ -37,3 +40,4 @@ tasks.test {
 kotlin {
     jvmToolchain(17)
 }
+

@@ -9,14 +9,16 @@ class Auction(
     val buyItNowPrice: Money?,
     private var status: AuctionStatus = AuctionStatus.CREATED,
     val itemTitle: String,
-    val itemDescription: String?
+    val itemDescription: String?,
 ) {
-
     private var highestBidAmount: Money? = null
     private var listOfBids: MutableList<Bid> = mutableListOf()
 
     fun getStatus(): AuctionStatus = this.status
+
     fun getHighestBidAmount(): Money? = this.highestBidAmount
+
+    fun getBids(): List<Bid> = this.listOfBids.toList()
 
     fun start() {
         if (this.status != AuctionStatus.CREATED) {
@@ -25,7 +27,10 @@ class Auction(
         this.status = AuctionStatus.OPEN
     }
 
-    fun placeBid(bidderId: UserId, amount: Money) {
+    fun placeBid(
+        bidderId: UserId,
+        amount: Money,
+    ) {
         require(this.status == AuctionStatus.OPEN) {
             "Bids can only be placed if AuctionStatus is OPEN"
         }
@@ -48,5 +53,5 @@ class Auction(
             this.status = AuctionStatus.PENDING_PAYMENT
         }
     }
-
 }
+

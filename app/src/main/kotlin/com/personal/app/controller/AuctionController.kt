@@ -26,43 +26,53 @@ import java.util.UUID
 class AuctionController(
     private val createAuctionService: CreateAuctionService,
     private val getAuctionService: GetAuctionService,
-    private val placeBidService: PlaceBidService
+    private val placeBidService: PlaceBidService,
 ) {
     @PostMapping
-    fun createAuction(@RequestBody createAuctionRequest: CreateAuctionRequest): ResponseEntity<Any> {
+    fun createAuction(
+        @RequestBody createAuctionRequest: CreateAuctionRequest,
+    ): ResponseEntity<Any> {
         val startingMoneyCurrencyCode = createAuctionRequest.startingMoneyCurrencyCode.uppercase().trim()
-        val startingMoney = Money(
-            createAuctionRequest.startingMoneyInCents,
-            CurrencyCode.valueOf(startingMoneyCurrencyCode)
-        )
-        val buyItNowPrice = if (createAuctionRequest.buyItNowPriceInCents != null &&
-            createAuctionRequest.buyItNowPriceCurrencyCode != null
-        ) {
-            val buyItNowPriceCurrencyCode = createAuctionRequest.buyItNowPriceCurrencyCode.uppercase().trim()
+        val startingMoney =
             Money(
-                createAuctionRequest.buyItNowPriceInCents,
-                CurrencyCode.valueOf(buyItNowPriceCurrencyCode)
+                createAuctionRequest.startingMoneyInCents,
+                CurrencyCode.valueOf(startingMoneyCurrencyCode),
             )
-        } else null
+        val buyItNowPrice =
+            if (createAuctionRequest.buyItNowPriceInCents != null &&
+                createAuctionRequest.buyItNowPriceCurrencyCode != null
+            ) {
+                val buyItNowPriceCurrencyCode = createAuctionRequest.buyItNowPriceCurrencyCode.uppercase().trim()
+                Money(
+                    createAuctionRequest.buyItNowPriceInCents,
+                    CurrencyCode.valueOf(buyItNowPriceCurrencyCode),
+                )
+            } else {
+                null
+            }
 
-        val auctionId = createAuctionService.execute(
-            UserId(createAuctionRequest.sellerId),
-            startingMoney,
-            buyItNowPrice,
-            createAuctionRequest.itemTitle,
-            createAuctionRequest.itemDescription
-        )
+        val auctionId =
+            createAuctionService.execute(
+                UserId(createAuctionRequest.sellerId),
+                startingMoney,
+                buyItNowPrice,
+                createAuctionRequest.itemTitle,
+                createAuctionRequest.itemDescription,
+            )
 
-        val location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{id}")
-            .buildAndExpand(auctionId.value)
-            .toUri()
+        val location =
+            ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(auctionId.value)
+                .toUri()
         return ResponseEntity.created(location).build()
     }
 
     @GetMapping("/{id}")
-    fun getAuction(@PathVariable id: UUID): GetAuctionResponse {
+    fun getAuction(
+        @PathVariable id: UUID,
+    ): GetAuctionResponse {
         val auction = getAuctionService.execute(AuctionId(id))
         return mapGetAuctionResponse(auction)
     }
@@ -70,23 +80,25 @@ class AuctionController(
     @PostMapping("/{id}/bids")
     fun placeBid(
         @PathVariable("id") auctionId: UUID,
-        @RequestBody placeBidRequest: PlaceBidRequest
+        @RequestBody placeBidRequest: PlaceBidRequest,
     ): ResponseEntity<GetAuctionResponse> {
         val bidCurrencyCode = placeBidRequest.bidCurrencyCode.uppercase().trim()
-        val bidMoney = Money(
-            placeBidRequest.bidAmountInCents,
-            CurrencyCode.valueOf(bidCurrencyCode)
-        )
-        val auction = placeBidService.execute(
-            AuctionId(auctionId),
-            UserId(placeBidRequest.bidderId),
-            bidMoney
-        )
+        val bidMoney =
+            Money(
+                placeBidRequest.bidAmountInCents,
+                CurrencyCode.valueOf(bidCurrencyCode),
+            )
+        val auction =
+            placeBidService.execute(
+                AuctionId(auctionId),
+                UserId(placeBidRequest.bidderId),
+                bidMoney,
+            )
         return ResponseEntity.ok(mapGetAuctionResponse(auction))
     }
 
-    private fun mapGetAuctionResponse(auction: Auction): GetAuctionResponse {
-        return GetAuctionResponse(
+    private fun mapGetAuctionResponse(auction: Auction): GetAuctionResponse =
+        GetAuctionResponse(
             auction.id.value,
             auction.sellerId.value,
             auction.startingAmount.amountInCents,
@@ -97,7 +109,7 @@ class AuctionController(
             auction.getHighestBidAmount()?.currencyCode?.name,
             auction.getStatus().name,
             auction.itemTitle,
-            auction.itemDescription
+            auction.itemDescription,
         )
-    }
 }
+

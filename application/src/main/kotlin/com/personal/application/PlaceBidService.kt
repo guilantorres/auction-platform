@@ -10,9 +10,13 @@ import org.springframework.stereotype.Service
 
 @Service
 class PlaceBidService(
-    private val auctionRepository: AuctionRepository
+    private val auctionRepository: AuctionRepository,
 ) {
-    fun execute(auctionId: AuctionId, bidderId: UserId, money: Money): Auction {
+    fun execute(
+        auctionId: AuctionId,
+        bidderId: UserId,
+        money: Money,
+    ): Auction {
         val persistedAuction =
             auctionRepository.findById(auctionId) ?: throw AuctionNotFoundException(auctionId)
 
@@ -21,3 +25,4 @@ class PlaceBidService(
         return persistedAuction
     }
 }
+
